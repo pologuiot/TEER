@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wall -O3 -DNDEBUG -rdynamic CMakeFiles/ter_Release.dir/src/function.cpp.o CMakeFiles/ter_Release.dir/src/TimeScheme.cpp.o CMakeFiles/ter_Release.dir/src/main.cpp.o -o build/ter_Release 

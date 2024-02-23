@@ -1,0 +1,3 @@
+/home/paul/2A/TER/code/CMakeFiles/ter_Release.dir
+/home/paul/2A/TER/code/CMakeFiles/edit_cache.dir
+/home/paul/2A/TER/code/CMakeFiles/rebuild_cache.dir
