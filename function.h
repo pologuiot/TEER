@@ -8,24 +8,32 @@
 class Particule
 {
 protected :
-    // Temps initial et Temps en cours et pas de Temps
-    double _t0, _t, _dt;
-    // Vecteur initial et vecteur solution
-    Eigen::VectorXd _position;
+    // Fonction f
+    Eigen::VectorXd _f;
+    // Constantes
+    double _D, _mu_fluide, _m_part, _rho_fluide, _g, _const_G, _h ;
     // Écriture du fichier
-    std::ofstream _file_out ;
+    std::ofstream _file_out;
 
 
 public :
     // Constructeur
-    Particule(Eigen::VectorXd position, std::string file_name);
+    Particule();
 
     // Destructeur
-    // Obligatoire dès qu'on a une fonction virtuelle !
     virtual ~Particule();
+    
+    // Initialiser le nom du fichier solution
+    void InitializeFileName(const std::string file_name);
+    
+    // Pour récupérer _f
+    const Eigen::VectorXd &  GetF()  const;
+    
+    // Sauvegarde la solution
+    void SaveSolution(const double t, const Eigen::VectorXd & vitesse);
 
-    // Initialise les paramêtres de temps
-    void Initialize(double dt);
+    // Initialise les paramêtres
+    void Initialize(double D, double mu, double m_particule, double rho_fluide);
 
     // Calcul de la vitesse du fluide
     double fluidspeed(double y, double t);
@@ -36,17 +44,11 @@ public :
     //Force de magnus
     double Force_magnus(double rho, double S, double u, double rot,double Cm);
 
-    // Sauvegarde la solution
-    void SaveSolution(const double t, const Eigen::VectorXd & position);
-
-    // pour récupérer _dt
-    double Get_dt() const{return _dt;}
+    
+    // Construction de la fonction f pour résoudre u' = f
+    void BuildF(double y, double t, const Eigen::VectorXd & vitesse);
 
 };
-
-
-
-
 
 #define _FUNCTION_H
 #endif
