@@ -9,30 +9,39 @@
 class EulerScheme {
 
 private:
-    Eigen::VectorXd _position ;
-    double _t;
-    std::complex<double> _Vx;
     
-    // Fonction pour calculer les dérivées
-    void systemODE(Eigen::VectorXd position, double t, std::complex<double> Vx, double& dX, std::complex<double>& dVx);
-
+    // Vecteur initial
+    Eigen::VectorXd _vitesse_init ;
+    
+    
+protected:
+    
+    // Temps initial et Temps en cours et pas de Temps
+    double _y, _t, _dt;
+    
+    // Vecteur solution
+    Eigen::VectorXd _vitesse ;
+    
+    // Pointeur vers le système d'EDO
+    Particule* _sys;
+    
     
 public:
     // Constructeur
-    EulerScheme(Eigen::VectorXd position, double initialTime, std::complex<double> initialValueVx);
+    EulerScheme();
+    
+    // Destructeur
+    ~EulerScheme();
 
+    // Initialisation deS différentes variables
+    void Initialize(double y, double t0, double dt, Eigen::VectorXd & vitesse_init, std::string name_file, Particule* sys);
 
+    // Enregistre la solution un fichier
+    void SaveSolution();
+    
     // Fonction pour avancer en temps avec la méthode d'Euler explicite
     void Advance();
 
-    // Fonction pour obtenir la valeur de x
-    double GetX() const;
-
-    // Fonction pour obtenir la valeur de Vx
-    double GetVx() const;
-
-    // Fonction pour obtenir le temps
-    double GetTime() const;
 };
 
 
