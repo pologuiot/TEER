@@ -10,7 +10,6 @@ using namespace std;
 using namespace Eigen;
 
 
-
 int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
 
     // argc est le nombre de paramêtre de la commande :
@@ -28,49 +27,40 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
         
     // --------- INITIALISATION DES VARIABLES ---------
         
-    VectorXd position;
-    string file_name;
-    double dt, tfinal, t;
-    int nbr_iteration;
-
-    position.resize(2); position(0) = 0; position(1) = -192.7e-6; //position (x,y) de la particule
-    dt = 0.01 ; t = 0.0 ; tfinal = 10 ;
-    nbr_iteration = tfinal/dt;
-        
-    double initialTime = 0;
-    std::complex<double> initialValueVx = 97e-6;
-        
-    double totalSimulationTime = 10;
-    double timeStep = 0.1;
-
-    Particule *part = new Particule(position,file_name); // créer objet de type Particule
-    part->Initialize(dt);
-
-        
-        
-    //  --------- TEST VITESSE FLUIDE A t = 5.5 ---------
+    VectorXd position_init, vitesse_init;
+    string file_name("results");
+    Particule *part = new Particule(); // créer objet de type Particule
+    EulerScheme *euler = new EulerScheme(); // créer objet de type EulerScheme
     
-    double u = part->fluidspeed(-192.7e-6, 5.5);
-    cout << "vitesse du fluide a t=5.5s = " << u*1e6 << endl;
+    // conditions initiales
+    position_init.resize(2); position_init(0) = 0; position_init(1) = -192.7e-6;
+    vitesse_init.resize(2); vitesse_init(0) = 97e-6 ; vitesse_init(1) = 0.;
+        
+    // temps
+    double dt(0.01), t0(0.0), tfinal(10) ;
+    double nbr_iteration = tfinal/dt;
+    double t = t0;
+
+    //constantes
+    double D = 10e-7 ; double mu_fluide = 0.0035 ; double m_part = 10e-10; double rho_fluide = 1000. ; // A vérifier
+    part->Initialize(D, mu_fluide, m_part, rho_fluide);
+    
         
         
-
-    // Pour T de 0 à Tfinal d'un pas de dt : Calculer la position de toutes les particules
-
-
-    EulerScheme EulerScheme(position, initialTime, initialValueVx);
-    std::ofstream outputFile("resultats_simulation.dat");
-
-//    while (EulerScheme.GetTime() <= totalSimulationTime)
-//    {
-//        EulerScheme.Advance();
-//        outputFile << EulerScheme.GetTime() << " " << EulerScheme.GetX() << " " << EulerScheme.GetVx() << std::endl;
-//    }
+    // -------- BOUCLE EN TEMPS ---------
         
-        
-    outputFile.close();
+    euler->Initialize(position_init(1), t0, dt, vitesse_init, file_name, part) ; // Initialisation
+    euler->SaveSolution() ; // Sauvegarde condition initiale
+    
+    for (int n = 0; n < nbr_iteration; n++)
+    { // Boucle en temps
+        euler->Advance();
+        euler->SaveSolution();
+    }
+    
 
     delete part;
+    delete euler;
 
     return 0;
 }
