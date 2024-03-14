@@ -11,16 +11,16 @@ class EulerScheme {
 private:
     
     // Vecteur initial
-    Eigen::VectorXd _vitesse_init ;
+    Eigen::VectorXd _vitesse_init, _position_init;
     
     
 protected:
     
     // Temps initial et Temps en cours et pas de Temps
-    double _y, _t, _dt;
+    double _t, _dt;
     
     // Vecteur solution
-    Eigen::VectorXd _vitesse ;
+    Eigen::VectorXd _vitesse, _position;
     
     // Pointeur vers le système d'EDO
     Particule* _sys;
@@ -34,13 +34,16 @@ public:
     ~EulerScheme();
 
     // Initialisation deS différentes variables
-    void Initialize(double y, double t0, double dt, Eigen::VectorXd & vitesse_init, std::string name_file, Particule* sys);
+    void Initialize(double t0, double dt, Eigen::VectorXd & vitesse_init, Eigen::VectorXd & position_init, std::string name_file, Particule* sys);
 
     // Enregistre la solution un fichier
     void SaveSolution();
     
     // Fonction pour avancer en temps avec la méthode d'Euler explicite
-    void Advance();
+    void AdvanceVitesse();
+    
+    // Mise à jour de la position de la particule
+    void AdvancePosition();
 
 };
 
