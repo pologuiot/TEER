@@ -30,25 +30,28 @@ public :
     const Eigen::VectorXd &  GetF()  const;
     
     // Sauvegarde la solution
-    void SaveSolution(const double t, const Eigen::VectorXd & vitesse);
+    void SaveSolution(const double t, const Eigen::VectorXd & position, const Eigen::VectorXd & vitesse);
 
     // Initialise les paramêtres
     void Initialize(double D, double mu, double m_particule, double rho_fluide);
 
     // Calcul de la vitesse du fluide
-    double fluidspeed(double y, double t);
+    double fluidspeed(double y, double t); // vitesse du juste selon x
 
+    // Construction de la fonction f pour résoudre u' = f
+    void BuildF(double y, double t, const Eigen::VectorXd & vitesse);
+    
     // Force de trainée
     double Force_trainée(double rho, double S, double u, double Cd);
 
     //Force de magnus
     double Force_magnus(double rho, double S, double u, double rot,double Cm);
 
-    
-    // Construction de la fonction f pour résoudre u' = f
-    void BuildF(double y, double t, const Eigen::VectorXd & vitesse);
-
 };
+
+
+
+
 
 #define _FUNCTION_H
 #endif
