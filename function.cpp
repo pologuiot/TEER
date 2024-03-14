@@ -45,12 +45,18 @@ void Particule::Initialize(double D, double mu_fluide, double m_part, double rho
 
 
 // Enregistre la solution dans le fichier
-void Particule::SaveSolution(const double t, const VectorXd & vitesse)
+void Particule::SaveSolution(const double t, const VectorXd & position, const VectorXd & vitesse)
 {
     this->_file_out << t;
+    
+    for (int i = 0 ; i < position.rows() ; ++i)
+    {
+        this->_file_out << " " << position(i) ;
+    }
+        
     for (int i = 0 ; i < vitesse.rows() ; ++i)
     {
-        this->_file_out << " " << vitesse(i);
+        this->_file_out << " " << vitesse(i) ;
     }
     this->_file_out << std::endl;
 }
@@ -79,10 +85,9 @@ double Particule::fluidspeed(double y, double t)
 void Particule::BuildF(double y, double t, const VectorXd & vitesse)
 {
     _f = vitesse ;
-    _f(0) = (12 * this->_mu_fluide * EIGEN_PI * this->_D)/this->_m_part * (fluidspeed(y, t)- vitesse(0)) ;
-    _f(1) = (this->_g * (this->_rho_fluide * (4/3 * EIGEN_PI * pow(this->_D/2, 3)) - this->_m_part) + 12 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1)) / this->_m_part ;
+    _f(0) = ((3 * this->_mu_fluide * EIGEN_PI * this->_D)/this->_m_part) * (fluidspeed(y, t)- vitesse(0)) ;
+    _f(1) = (this->_g * (this->_rho_fluide * (4/3 * EIGEN_PI * pow(this->_D/2, 3)) - this->_m_part) -3 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1)) / this->_m_part ;
 }
-
 
 // Calcule la force de trainée
 double Particule :: Force_trainée(double rho, double S, double u, double Cd)
