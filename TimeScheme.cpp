@@ -24,13 +24,14 @@ EulerScheme::~EulerScheme()
 
 // -------- INITIALISATION DES VARIABLES --------
 
-void EulerScheme::Initialize(double y, double t0, double dt, Eigen::VectorXd & vitesse_init, std::string name_file, Particule* sys)
+void EulerScheme::Initialize(double t0, double dt, Eigen::VectorXd & vitesse_init, Eigen::VectorXd & position_init, std::string name_file, Particule* sys)
 {
-    this->_y = y;
     this->_dt = dt;
     this->_t = t0 ;
     this->_vitesse_init = vitesse_init;
+    this->_position_init = position_init;
     this->_vitesse = vitesse_init;
+    this->_position = position_init;
     this->_sys = sys;
     if (name_file.size() > 0)
     {
@@ -46,18 +47,24 @@ void EulerScheme::Initialize(double y, double t0, double dt, Eigen::VectorXd & v
 // le système
 void EulerScheme::SaveSolution()
 {
-   this->_sys->SaveSolution(this->_t, this->_vitesse);
+   this->_sys->SaveSolution(this->_t, this->_position, this->_vitesse);
 }
 
 
 // Fonction pour avancer en temps avec la méthode d'Euler explicite
-void EulerScheme::Advance()
+void EulerScheme::AdvanceVitesse()
 {
-    this->_sys->BuildF(this->_y, this->_t, this->_vitesse);
+    this->_sys->BuildF(this->_position(1), this->_t, this->_vitesse);
     this->_vitesse += this->_dt*this->_sys->GetF();
     this->_t += this->_dt;
 }
 
+
+// Mise à jour de la position de la particule
+void EulerScheme::AdvancePosition()
+{
+    this->_position += - this->_vitesse * this->_dt ;
+}
 
 
 #define _TIME_SCHEME_CPP
