@@ -63,7 +63,7 @@ void EulerScheme::AdvanceVitesse()
 // Mise à jour de la position de la particule
 void EulerScheme::AdvancePosition()
 {
-    this->_position += - this->_vitesse * this->_dt ;
+    this->_position += this->_vitesse * this->_dt ;
 }
 
 
