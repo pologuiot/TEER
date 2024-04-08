@@ -28,9 +28,9 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
     // --------- INITIALISATION DES VARIABLES ---------
         
     VectorXd position_init, vitesse_init;
-    string file_name("results.dat");
+    string file_name("/Users/clarissekatz/Desktop/ENSEIRB-MATMECA/2A/S8/TER/C++/results.dat");
     Particule *part = new Particule(); // créer objet de type Particule
-    EulerScheme *euler = new EulerScheme(); // créer objet de type EulerScheme
+    TimeScheme *euler = new TimeScheme(); // créer objet de type TimeScheme
         
     // temps
     double dt(0.01), t0(0.0), tfinal(10) ;
@@ -38,14 +38,13 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
         
     // conditions initiales
     position_init.resize(2); position_init(0) = 0; position_init(1) = -192.7e-6;
-    vitesse_init.resize(2); vitesse_init(0) = part->fluidspeed(position_init(1), t0) ; vitesse_init(1) = 0.;
+    vitesse_init.resize(2); vitesse_init(0) = part->FluidSpeed(position_init(1), t0) ; vitesse_init(1) = 0.;
 
     //constantes
-    double D = 10e-7 ; double mu_fluide = 7.31e-4 ; double m_part = 10e-10; double rho_fluide = 1000. ; // A vérifier
-    part->Initialize(D, mu_fluide, m_part, rho_fluide);
-    
-        
-        
+    double D_cellule = 10e-7 ; double mu_fluide = 7.31e-4 ; double m_part = 10e-10; double rho_fluide = 1000. ; // vérifier
+    double R_vaisseau = 2e-3;
+    part->Initialize(D_cellule, mu_fluide, m_part, rho_fluide, R_vaisseau);
+            
     // -------- BOUCLE EN TEMPS ---------
         
     euler->Initialize(t0, dt, vitesse_init, position_init, file_name, part) ; // Initialisation
@@ -53,7 +52,10 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
     
     for (int n = 0; n < nbr_iteration; n++)
     { // Boucle en temps
-        euler->AdvanceVitesse();
+        euler->AdvanceVitessePoiseuille();
+        euler->AdvanceShear();
+        euler->AdvanceVitesseCouette();
+        euler->AdvanceMomentCouette();
         euler->AdvancePosition();
         euler->SaveSolution(); // écriture de position(0), position(1), vitesse(0), vitesse(1)
     }
