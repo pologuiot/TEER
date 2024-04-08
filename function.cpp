@@ -33,16 +33,16 @@ void Particule::InitializeFileName(const std::string file_name)
 }
 
 // Initialise les paramêtres de temps
-void Particule::Initialize(double D, double mu_fluide, double m_part, double rho_fluide)
+void Particule::Initialize(double D, double mu_fluide, double m_part, double rho_fluide, double R_vaisseau)
 {
     this->_D = D;
     this->_mu_fluide = mu_fluide;
     this->_m_part = m_part;
     this->_rho_fluide = rho_fluide;
+    this->_R_vaisseau = R_vaisseau; 
     this->_g = 9.81 ;
     this->_const_G = 50.33 ;
     this->_h = 400e-6 ; // distance entre les 2 parois
-    this->_f.resize(2) ;
 }
 
 
@@ -64,21 +64,15 @@ void Particule::SaveSolution(const double t, const VectorXd & position, const Ve
 }
 
 
-// Renvoie le vecteur _f
-const VectorXd & Particule::GetF() const
-{
-  return this->_f;
-}
-
 // Calcule la vitesse du fluide à (y,t) donné
-double Particule::fluidspeed(double y, double t)
+double Particule::FluidSpeed(double y, double t)
 {
     double nu=7.31e-7;
     double omega=12;
     double xi = 0.27;
     double G=50.33;
     double rho=1000;
-    double h=400e-6; 
+    double h=400e-6;
     double alpha = sqrt(omega/(2*nu));
 
     double aa = (exp(alpha*y)+exp(-alpha*y))*cos(alpha*y);
@@ -86,34 +80,75 @@ double Particule::fluidspeed(double y, double t)
     double cc = (exp(alpha*h/2.0)+exp(-alpha*h/2.0))*cos(alpha*h/2.0);
     double dd = (exp(alpha*h/2.0)-exp(-alpha*h/2.0))*sin(alpha*h/2.0);
 
-    // Expression calculé à la main 
-    double u = (1/(rho*omega))*(-G*xi*sin(omega*t)*(1-(aa*cc+bb*dd)/(cc*cc+dd*dd))+G*xi*cos(omega*t)*((aa*dd-bb*cc)/(cc*cc-dd*dd))) + ((G*h*h)*(1-(2*y/h)*(2*y/h)))/(8*rho*nu) ;
+    // Expression calculé à la main
+    double u;
+    u=(1/(rho*omega))*(-G*xi*sin(omega*t)*(1-(aa*cc+bb*dd)/(cc*cc+dd*dd))+G*xi*cos(omega*t)*((aa*dd-bb*cc)/(cc*cc-dd*dd))) + ((G*h*h)*(1-(2*y/h)*(2*y/h)))/(8*rho*nu) ;
 
     return u;
+}
+
+
+// Dérivée de la vitesse du fluide à t fixé
+double Particule::FluidSpeedDerive(double y, double t)
+{
+    double derive = 0;
+    return derive;
 }
 
 
 // Construction de la fonction f pour résoudre u' = f
 void Particule::BuildF(double y, double t, const VectorXd & vitesse)
 {
-    _f(0) = ((3 * this->_mu_fluide * EIGEN_PI * this->_D)/this->_m_part) * (fluidspeed(y, t)- vitesse(0)) ;
-    _f(1) = (this->_g * (this->_rho_fluide * (4./3. * EIGEN_PI * pow(this->_D/2, 3)) - this->_m_part) - (3.0 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1))) / this->_m_part ; 
-
-    // cout << " f(0) = " << _f(0) << endl ;
-    // cout << " f(1) = " << _f(1) << endl ;
+    _f = vitesse ;
+    _f(0) = ((3 * this->_mu_fluide * EIGEN_PI * this->_D)/this->_m_part) * (FluidSpeed(y, t)- vitesse(0)) ;
+    _f(1) = (this->_g * (this->_rho_fluide * (4/3 * EIGEN_PI * pow(this->_D/2, 3)) - this->_m_part) - 3 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1)) / this->_m_part ;
 }
 
-// Calcule la force de trainée
-double Particule :: Force_trainée(double rho, double S, double u, double Cd)
+
+// Renvoie le vecteur _f
+const VectorXd & Particule::GetF() const
 {
-    return 0;
+  return this->_f;
 }
 
-// Calcule la force de Magnus
-double Particule :: Force_magnus(double rho, double S, double u, double rot,double Cm)
+
+// Calcule la vitesse de cisaillement transversal
+double Particule::VitesseCouette(double y, double Shear)
 {
-    return 0;
+    double v;
+    double h = y;
+    double a = this->_D/2;
+    
+    if (h/a >= 1.)
+    {
+        v = Shear*h*(1-5/16 *pow(a/h, 3)) ;
+    }
+    else
+    {
+        v = Shear*h* 0.7431/(0.6376-0.2*log((h-a)/a));
+    }
+    return v; // selon x
 }
+
+
+// calcule le moment (vitesse angulaire) obtenu avec couette
+double Particule::MomentCouette(double y, double Shear)
+{
+    double moment;
+    double h = y;
+    double a = this->_D/2;
+    if (h/a >= 1)
+    {
+        moment = Shear/2 *(1-5/16 *pow(a/h, 3)) ;
+    }
+    else
+    {
+        moment = Shear/2 * 0.8436/(0.6376-0.2*log((h-a)/a));
+    }
+    return moment; // selon z
+}
+
+
 
 #define _FUNCTION_CPP
 #endif
