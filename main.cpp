@@ -52,11 +52,11 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
     
     for (int n = 0; n < nbr_iteration; n++)
     { // Boucle en temps
+        euler->AdvancePosition();
         euler->AdvanceVitessePoiseuille();
         euler->AdvanceShear();
         euler->AdvanceVitesseCouette();
         euler->AdvanceMomentCouette();
-        euler->AdvancePosition();
         euler->SaveSolution(); // écriture de position(0), position(1), vitesse(0), vitesse(1)
     }
     
