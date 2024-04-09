@@ -89,6 +89,10 @@ void TimeScheme::AdvanceMomentCouette()
 void TimeScheme::AdvancePosition()
 {
     this->_position += (this->_v_poseuille + this->_v_couette) * this->_dt ;
+    if (this->_position(1) <= -200e-6) {
+        this->_vitesse(0) = 0.0 ;
+        this->_vitesse(1) = 0.0 ;
+    }
 }
 
 
