@@ -42,7 +42,7 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
 
     //constantes
     double D_cellule = 10e-7 ; double mu_fluide = 7.31e-4 ; double m_part = 10e-10; double rho_fluide = 1000. ; // vérifier
-    double R_vaisseau = 2e-3;
+    double R_vaisseau = 400e-6;
     part->Initialize(D_cellule, mu_fluide, m_part, rho_fluide, R_vaisseau);
             
     // -------- BOUCLE EN TEMPS ---------
