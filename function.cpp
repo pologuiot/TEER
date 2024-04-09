@@ -101,7 +101,7 @@ void Particule::BuildF(double y, double t, const VectorXd & vitesse)
 {
     _f = vitesse ;
     _f(0) = ((3 * this->_mu_fluide * EIGEN_PI * this->_D)/this->_m_part) * (FluidSpeed(y, t)- vitesse(0)) ;
-    _f(1) = (this->_g * (this->_rho_fluide * (4/3 * EIGEN_PI * pow(this->_D/2, 3)) - this->_m_part) - 3 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1)) / this->_m_part ;
+    _f(1) = (this->_g * (this->_rho_fluide * (4.0/3.0 * EIGEN_PI * pow(this->_D/2.0, 3)) - this->_m_part) - 3 * this->_mu_fluide * EIGEN_PI * this->_D * vitesse(1)) / this->_m_part ;
 }
 
 
@@ -121,7 +121,7 @@ double Particule::VitesseCouette(double y, double Shear)
     
     if (h/a >= 1.)
     {
-        v = Shear*h*(1-5/16 *pow(a/h, 3)) ;
+        v = Shear*h*(1-5.0/16.0 *pow(a/h, 3)) ;
     }
     else
     {
@@ -139,7 +139,7 @@ double Particule::MomentCouette(double y, double Shear)
     double a = this->_D/2;
     if (h/a >= 1)
     {
-        moment = Shear/2 *(1-5/16 *pow(a/h, 3)) ;
+        moment = Shear/2 *(1-5.0/16.0 *pow(a/h, 3)) ;
     }
     else
     {
