@@ -23,7 +23,7 @@ protected:
     Eigen::VectorXd _v_poseuille, _v_couette, _moment, _position;
     
     //coefficient shear
-    double _Shear;
+    double _Shear, _teta, _h ;
     
     // Pointeur vers le système d'EDO
     Particule* _sys;
@@ -58,6 +58,7 @@ public:
     void AdvanceShear();
 
 };
+
 
 
 #define _TIME_SCHEME_H
