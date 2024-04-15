@@ -31,6 +31,7 @@ void TimeScheme::Initialize(double t0, double dt, Eigen::VectorXd & vitesse_init
     this->_vitesse_init = vitesse_init;
     this->_position_init = position_init;
     this->_v_poseuille = vitesse_init;
+    this->_teta = 0.0 ;
     //this->_v_couette = ?; //jsp c'est quoi les CL a t=0
     //this->_moment = ?;
     this->_position = position_init;
@@ -49,51 +50,66 @@ void TimeScheme::Initialize(double t0, double dt, Eigen::VectorXd & vitesse_init
 // le système
 void TimeScheme::SaveSolution()
 {
-   this->_sys->SaveSolution(this->_t, this->_position, this->_v_poseuille);
+   this->_sys->SaveSolution(this->_t, this->_position, this->_v_poseuille, this->_teta);
 }
 
 
 // Fonction pour avancer en temps avec la méthode d'Euler explicite
 void TimeScheme::AdvanceVitessePoiseuille()
 {
-    this->_sys->BuildF(this->_position(1), this->_t, this->_v_poseuille);
-    this->_v_poseuille += this->_dt*this->_sys->GetF();
-    this->_t += this->_dt;
+    if (abs(this->_position(1)) < 200e-6) {
+        this->_sys->BuildF(this->_position(1), this->_t, this->_v_poseuille);
+        this->_v_poseuille += this->_dt*this->_sys->GetF();
+        // this->_teta = fmod(this->_teta+2.0,360)  ; // fmod() -> modulo pour les doubles
+        this->_t += this->_dt;
+
+    }
+    else {
+        this->_teta = fmod(this->_teta+2.0,360)  ;
+        this->_t += this->_dt ;
+    }
 }
 
 
-// Calcul du coefficient S (shear)
-void TimeScheme::AdvanceShear()
-{
-    this->_Shear = this->_sys->FluidSpeedDerive(this->_position(1), this->_t) ;
-    // Il faut calculer l'expression de la vitesse dérivée selon y, a t fixé
-}
+// Calcul du coefficient S (shear) et h
+ void TimeScheme::AdvanceShear()
+ {   
+     this->_Shear = (this->_sys->FluidSpeed(this->_position(1)+(5e-7),this->_t)-this->_sys->FluidSpeed(this->_position(1)-(5e-7),this->_t))/(10.0e-7) ;
+     
+     double S0 = this->_sys->FluidSpeed(0, this->_t);
+     double l = -this->_Shear / S0 ;
+     this->_h = this->_position(1) - l;
+ }
 
 
-// Fonction pour avancer en temps la vitesse de couette (cisaillement)
-void TimeScheme::AdvanceVitesseCouette()
-{
-    this->_v_couette(0) = this->_sys->VitesseCouette(this->_position(1), this->_Shear);
-    this->_v_couette(1) = 0;
-}
+ // Fonction pour avancer en temps la vitesse de couette (cisaillement)
+ void TimeScheme::AdvanceVitesseCouette()
+ {
+     this->_v_couette(0) = this->_sys->VitesseCouette(this->_position(1), this->_Shear);
+     this->_v_couette(1) = 0;
+ }
 
-// Avance en temps le moment (cisaillement)
-void TimeScheme::AdvanceMomentCouette()
-{
-    this->_moment(2) = this->_sys->MomentCouette(this->_position(1), this->_Shear);
-    this->_moment(0) = 0;
-    this->_moment(1) = 0;
-}
+ // Avance en temps le moment (cisaillement)
+ void TimeScheme::AdvanceMomentCouette()
+ {
+     this->_moment(2) = this->_sys->MomentCouette(this->_h, this->_Shear);
+     this->_moment(0) = 0;
+     this->_moment(1) = 0;
+ }
 
 // Mise à jour de la position de la particule
 void TimeScheme::AdvancePosition()
 {
-    this->_position += (this->_v_poseuille + this->_v_couette) * this->_dt ;
-    if (this->_position(1) <= -200e-6) {
-        this->_vitesse(0) = 0.0 ;
-        this->_vitesse(1) = 0.0 ;
+    this->_position += (this->_v_poseuille /*+ this->_v_couette*/) * this->_dt ;
+    
+    if (abs(this->_position(1)) >= 200e-6) {
+        this->_v_poseuille(0) = 0.0 ;
+        this->_v_poseuille(1) = 0.0 ;
     }
 }
+
+
+
 
 
 #define _TIME_SCHEME_CPP
