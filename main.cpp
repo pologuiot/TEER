@@ -10,6 +10,7 @@ using namespace std;
 using namespace Eigen;
 
 
+
 int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
 
     // argc est le nombre de paramêtre de la commande :
@@ -24,16 +25,16 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
 
     {
 
-        
-    // --------- INITIALISATION DES VARIABLES ---------
-        
+        // --------- INITIALISATION DES VARIABLES ---------
+
+    ofstream file_out ;
     VectorXd position_init, vitesse_init;
-    string file_name("/Users/clarissekatz/Desktop/ENSEIRB-MATMECA/2A/S8/TER/C++/results.dat");
+    string file_name("results.dat");
     Particule *part = new Particule(); // créer objet de type Particule
     TimeScheme *euler = new TimeScheme(); // créer objet de type TimeScheme
         
     // temps
-    double dt(0.01), t0(0.0), tfinal(10) ;
+    double dt(0.000001), t0(0.0), tfinal(1.) ;
     double nbr_iteration = tfinal/dt;
         
     // conditions initiales
@@ -41,9 +42,9 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
     vitesse_init.resize(2); vitesse_init(0) = part->FluidSpeed(position_init(1), t0) ; vitesse_init(1) = 0.;
 
     //constantes
-    double D_cellule = 10e-7 ; double mu_fluide = 7.31e-4 ; double m_part = 10e-10; double rho_fluide = 1000. ; // vérifier
-    double R_vaisseau = 400e-6;
-    part->Initialize(D_cellule, mu_fluide, m_part, rho_fluide, R_vaisseau);
+    double mu_fluide = 7.31e-4 ; double rho_fluide = 1060. ; // vérifier
+    double R_part = 5e-6; double rho_part = 1050.;
+    part->Initialize(R_part, rho_part, mu_fluide, rho_fluide);
             
     // -------- BOUCLE EN TEMPS ---------
         
@@ -57,9 +58,8 @@ int main(int argc, char **argv) // argc et argv : paramêtres propre au terminal
         euler->AdvanceShear();
         euler->AdvanceVitesseCouette();
         euler->AdvanceMomentCouette();
-        euler->SaveSolution(); // écriture de position(0), position(1), vitesse(0), vitesse(1)
+        euler->SaveSolution(); // écriture de t, position(0), position(1), vitesse(0), vitesse(1)
     }
-    
 
     delete part;
     delete euler;
