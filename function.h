@@ -1,8 +1,8 @@
 #ifndef _FUNCTION_H
 #include <fstream>
 #include <string>
-#include "/net/netud/m/lmagnier001/TEER/libraries/eigen/Eigen/Sparse" // mettre son propre chemin vers le dossier TER
-#include "/net/netud/m/lmagnier001/TEER/libraries/eigen/Eigen/Dense" // idem
+#include <Eigen/Sparse>
+#include <Eigen/Dense>
 
 
 class Particule
@@ -11,7 +11,7 @@ protected :
     // Fonction f
     Eigen::VectorXd _f;
     // Constantes
-    double _D, _R_vaisseau, _mu_fluide, _m_part, _rho_fluide, _g, _const_G, _h, _MomentCouette;
+    double _R_part, _rho_part, _mu_fluide, _rho_fluide, _g, _const_G, _h, _MomentCouette;
     // Écriture du fichier
     std::ofstream _file_out;
 
@@ -27,10 +27,10 @@ public :
     void InitializeFileName(const std::string file_name);
     
     // Sauvegarde la solution
-    void SaveSolution(const double t, const Eigen::VectorXd & position, const Eigen::VectorXd & vitesse);
+    void SaveSolution(const double t, const Eigen::VectorXd & position, const Eigen::VectorXd & vitesse, const double teta);
 
     // Initialise les paramêtres
-    void Initialize(double D, double mu, double m_particule, double rho_fluide, double R_vaisseau);
+    void Initialize(double R_part, double rho_part, double mu_fluide, double rho_fluide);
 
     // Calcul de la vitesse du fluide
     double FluidSpeed(double y, double t); // vitesse du juste selon x
@@ -55,8 +55,6 @@ public :
     //double Force_magnus(double rho, double S, double u, double rot,double Cm);
 
 };
-
-
 
 
 
